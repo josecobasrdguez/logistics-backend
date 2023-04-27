@@ -178,8 +178,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',  # <-- And here
+        'rest_framework.authentication.TokenAuthentication',
     ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
 }
 
 # CORS_ALLOWED_ORIGINS = [
@@ -196,6 +199,6 @@ ENVIRONMENT = 'sandbox'
 # COMPANY_ID = '4620816365289026890'
 REACT_URI = 'http://localhost:3000/destinations'
 
-# SWAGGER_SETTINGS = {
-#     'USE_SESSION_AUTH': False,
-# }
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': False,
+}

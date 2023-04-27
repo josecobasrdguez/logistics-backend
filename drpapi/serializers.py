@@ -2,48 +2,42 @@
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
 
-from drpapi.models import Profile, Location, CustomerLocation, Route
-
-
-class IdSerializer(serializers.Serializer):
-    id = serializers.IntegerField(min_value=0)
+from drpapi.models import Profile, Location, Route, Driver, Van, Order
 
 
-class DriverSerializer(serializers.Serializer):
-    driver = serializers.CharField(allow_blank=True)
+class DriverSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Driver model
+    """
+
+    class Meta:
+        model = Driver
+        fields = ('id', 'driver')
 
 
-class IdDriverSerializer(serializers.Serializer):
-    id = serializers.IntegerField(min_value=0)
-    driver = serializers.CharField(allow_blank=True)
+class LocationSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Location model
+    """
+
+    class Meta:
+        model = Location
+        fields = ('id', 'location')
 
 
-class LocationSerializer(serializers.Serializer):
-    location = serializers.CharField(allow_blank=True)
+class VanSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Van model
+    """
+
+    class Meta:
+        model = Van
+        fields = ('id', 'van')
 
 
-class IdLocationSerializer(serializers.Serializer):
-    id = serializers.IntegerField(min_value=0)
-    location = serializers.CharField(allow_blank=True)
-
-
-class VanSerializer(serializers.Serializer):
-    van = serializers.CharField(allow_blank=True)
-
-
-class IdVanSerializer(serializers.Serializer):
-    id = serializers.IntegerField(min_value=0)
-    van = serializers.CharField(allow_blank=True)
-
-
-class ProfileGetSerializer(serializers.Serializer):
-    img = serializers.CharField(allow_blank=True)
-
-
-class DateSerializer(serializers.Serializer):
-    date = serializers.DateField()
+# class ProfileGetSerializer(serializers.Serializer):
+#     img = serializers.CharField(allow_blank=True)
 
 
 class InvoiceSerializer(serializers.Serializer):
@@ -93,47 +87,40 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = '__all__'
 
-#
-# class LocationSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Location
-#         fields = ['id', 'location']
-
 
 class CustomerLocationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomerLocation
+        model = Order
         fields = ['customer', 'address', 'priority', 'payroll']
 
 
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['id', 'route', 'customer', 'address', 'priority', 'payroll', 'date']
+
+
 class RouteSerializer(serializers.ModelSerializer):
-    # customerlocations = CustomerLocationSerializer(many=True, read_only=True)
+    driver = DriverSerializer(many=False, read_only=True)
+    van = VanSerializer(many=False, read_only=True)
+    startlocation = LocationSerializer(many=False, read_only=True)
+    endlocation = LocationSerializer(many=False, read_only=True)
+    orders = OrderSerializer(many=True, read_only=True, source='order_set')
 
     class Meta:
         model = Route
-        fields = ['name', 'driver', 'van', 'startlocation', 'endlocation']
-        # fields = ['name', 'driver', 'van', 'startlocation', 'endlocation', 'customerlocations']
+        fields = ['id', 'name', 'driver', 'van', 'startlocation', 'endlocation', 'orders']
 
 
-class IdRouteSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(min_value=0)
+class RouteUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Route
         fields = ['id', 'name', 'driver', 'van', 'startlocation', 'endlocation']
-        # fields = ['id', 'name', 'driver', 'van', 'startlocation', 'endlocation', 'customerlocations']
 
 
 class CustomerLocationSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = CustomerLocation
+        model = Order
         fields = ['route', 'customer', 'address', 'priority', 'payroll']
-
-
-class IdCustomerLocationSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(min_value=0)
-
-    class Meta:
-        model = CustomerLocation
-        fields = ['id', 'customer', 'address', 'priority', 'payroll']
